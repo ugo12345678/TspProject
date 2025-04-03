@@ -1,0 +1,14 @@
+C:\SDV\GO ( opti back )\TspProject\bin\Debug\net9.0\TspProject.exe
+C:\SDV\GO ( opti back )\TspProject\bin\Debug\net9.0\TspProject.deps.json
+C:\SDV\GO ( opti back )\TspProject\bin\Debug\net9.0\TspProject.runtimeconfig.json
+C:\SDV\GO ( opti back )\TspProject\bin\Debug\net9.0\TspProject.dll
+C:\SDV\GO ( opti back )\TspProject\bin\Debug\net9.0\TspProject.pdb
+C:\SDV\GO ( opti back )\TspProject\obj\Debug\net9.0\TspProject.GeneratedMSBuildEditorConfig.editorconfig
+C:\SDV\GO ( opti back )\TspProject\obj\Debug\net9.0\TspProject.AssemblyInfoInputs.cache
+C:\SDV\GO ( opti back )\TspProject\obj\Debug\net9.0\TspProject.AssemblyInfo.cs
+C:\SDV\GO ( opti back )\TspProject\obj\Debug\net9.0\TspProject.csproj.CoreCompileInputs.cache
+C:\SDV\GO ( opti back )\TspProject\obj\Debug\net9.0\TspProject.dll
+C:\SDV\GO ( opti back )\TspProject\obj\Debug\net9.0\refint\TspProject.dll
+C:\SDV\GO ( opti back )\TspProject\obj\Debug\net9.0\TspProject.pdb
+C:\SDV\GO ( opti back )\TspProject\obj\Debug\net9.0\TspProject.genruntimeconfig.cache
+C:\SDV\GO ( opti back )\TspProject\obj\Debug\net9.0\ref\TspProject.dll
