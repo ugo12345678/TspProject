@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"math"
 	"os"
@@ -70,7 +69,7 @@ func lireVilles(nomFichier string) ([]Ville, error) {
 	}
 	defer fichier.Close()
 
-	var villes []Ville
+	villes := make([]Ville, 0, 30000)
 	reader := bufio.NewReader(fichier)
 
 	for {
@@ -100,12 +99,5 @@ func main() {
 		log.Fatalf("Erreur de lecture du fichier : %v", err)
 	}
 
-	tour, distanceTotale := plusProcheVoisin(villes)
-
-	fmt.Printf("Distance totale : %.2f\n", distanceTotale)
-	fmt.Println("Tour suivi :")
-	for i := len(tour) - 5; i < len(tour); i++ {
-		fmt.Printf("%s -> ", tour[i].nom)
-	}
-	fmt.Println()
+	plusProcheVoisin(villes)
 }
