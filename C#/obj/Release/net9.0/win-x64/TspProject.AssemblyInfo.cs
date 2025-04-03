@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TspProject")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+796bf2a31ed4101973aa5e4ccee9d8b9d11c6f61")]
 [assembly: System.Reflection.AssemblyProductAttribute("TspProject")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TspProject")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
