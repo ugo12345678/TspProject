@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "tEB4kEnvaow=",
+  "dgSpecHash": "1NyGH3aBq/g=",
   "success": true,
-  "projectFilePath": "C:\\SDV\\GO ( opti back )\\TspProject2\\TspProject.csproj",
+  "projectFilePath": "C:\\SDV\\TspProject\\C#\\TspProject.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\DMNS4674\\.nuget\\packages\\microsoft.net.illink.tasks\\9.0.3\\microsoft.net.illink.tasks.9.0.3.nupkg.sha512",
     "C:\\Users\\DMNS4674\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\9.0.3\\microsoft.netcore.app.runtime.win-x64.9.0.3.nupkg.sha512",

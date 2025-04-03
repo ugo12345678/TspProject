@@ -83,11 +83,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\SDV\\GO ( opti back )\\TspProject2\\TspProject.csproj",
+      "projectUniqueName": "C:\\SDV\\TspProject\\C#\\TspProject.csproj",
       "projectName": "TspProject",
-      "projectPath": "C:\\SDV\\GO ( opti back )\\TspProject2\\TspProject.csproj",
+      "projectPath": "C:\\SDV\\TspProject\\C#\\TspProject.csproj",
       "packagesPath": "C:\\Users\\DMNS4674\\.nuget\\packages\\",
-      "outputPath": "C:\\SDV\\GO ( opti back )\\TspProject2\\obj\\",
+      "outputPath": "C:\\SDV\\TspProject\\C#\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
