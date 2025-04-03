@@ -8,7 +8,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // Ville représente une ville avec ses coordonnées x et y
@@ -79,8 +78,8 @@ func lireVilles(nomFichier string) ([]Ville, error) {
 		if err != nil {
 			break
 		}
-		strings.ReplaceAll(ligne, ",", ".")
-		champs := strings.Split(strings.TrimSpace(ligne), "|")
+		ligneFormated := strings.ReplaceAll(ligne, ",", ".")
+		champs := strings.Split(strings.TrimSpace(ligneFormated), "|")
 		if len(champs) != 3 {
 			continue
 		}
@@ -101,15 +100,12 @@ func main() {
 		log.Fatalf("Erreur de lecture du fichier : %v", err)
 	}
 
-	start := time.Now()
 	tour, distanceTotale := plusProcheVoisin(villes)
-	duration := time.Since(start)
 
-	fmt.Printf("Temps d'exécution : %.4f ms\n", duration.Seconds()*1000)
 	fmt.Printf("Distance totale : %.2f\n", distanceTotale)
 	fmt.Println("Tour suivi :")
-	for _, ville := range tour {
-		fmt.Printf("%s -> ", ville.nom)
+	for i := len(tour) - 5; i < len(tour); i++ {
+		fmt.Printf("%s -> ", tour[i].nom)
 	}
 	fmt.Println()
 }

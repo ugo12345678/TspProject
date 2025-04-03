@@ -69,7 +69,7 @@ func plusProcheVoisin(villes []Ville) ([]Ville, float64) {
 }
 
 func lireVilles(nomFichier string) ([]Ville, error) {
-	fichier, err := os.Open("./villes.csv")
+	fichier, err := os.Open(nomFichier)
 	if err != nil {
 		log.Fatalf("Erreur lors de l'ouverture du fichier : %v", err)
 	}
@@ -81,7 +81,8 @@ func lireVilles(nomFichier string) ([]Ville, error) {
 	// Lire le fichier ligne par ligne
 	for scanner.Scan() {
 		ligne := scanner.Text()
-		champs := strings.Split(ligne, "|")
+		ligneFormated := strings.ReplaceAll(ligne, ",", ".")
+		champs := strings.Split(ligneFormated, "|")
 
 		if len(champs) != 3 {
 			// log.Printf("Ligne ignorée (nombre de champs incorrect) : %s", ligne)
@@ -110,13 +111,13 @@ func lireVilles(nomFichier string) ([]Ville, error) {
 
 func main() {
 	// Exemple de villes avec leurs coordonnées
-	villes, err := lireVilles("villes.csv")
+	start := time.Now()
+	villes, err := lireVilles("../../cities.csv")
+	duration := time.Since(start)
+	fmt.Println("Temps d'exécution :", duration)
 	if err != nil {
 		log.Fatalf("Erreur de lecture du fichier : %v", err)
 	}
 
-	start := time.Now()
 	plusProcheVoisin(villes)
-	duration := time.Since(start)
-	fmt.Println("Temps d'exécution :", duration)
 }
