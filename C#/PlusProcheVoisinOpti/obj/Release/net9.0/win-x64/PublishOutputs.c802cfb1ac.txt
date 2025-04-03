@@ -1,0 +1,2 @@
+C:\SDV\GO ( opti back )\TspProject\bin\Release\net9.0\win-x64\publish\TspProject.pdb
+C:\SDV\GO ( opti back )\TspProject\bin\Release\net9.0\win-x64\publish\TspProject.exe
