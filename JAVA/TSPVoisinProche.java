@@ -25,7 +25,8 @@ class TSPVoisinProche {
 
     public void solve() {
         int nombreVilles = villes.size();
-        if (nombreVilles == 0) return;
+        if (nombreVilles == 0)
+            return;
 
         boolean[] visitees = new boolean[nombreVilles];
         List<Ville> chemin = new ArrayList<>();
@@ -63,13 +64,13 @@ class TSPVoisinProche {
         long endTime = System.nanoTime();
         double executionTime = (endTime - startTime) / 1e6; // en ms
 
-        System.out.printf("Distance totale : %.6f\n", distanceTotale);
+        // System.out.printf("Distance totale : %.6f\n", distanceTotale);
         System.out.printf("Temps d'exécution : %.4f ms\n", executionTime);
-        System.out.print("Chemin suivi : ");
-        for (Ville v : chemin) {
-            System.out.print(v.nom + " -> ");
-        }
-        System.out.println();
+        // System.out.print("Chemin suivi : ");
+        // for (Ville v : chemin) {
+        // System.out.print(v.nom + " -> ");
+        // }
+        // System.out.println();
     }
 
     public static List<Ville> lireFichierCSV(String nomFichier) throws IOException {
@@ -79,11 +80,12 @@ class TSPVoisinProche {
 
         while ((ligne = br.readLine()) != null) {
             String[] data = ligne.split("\\|");
-            if (data.length != 3) continue;
+            if (data.length != 3)
+                continue;
 
             String nom = data[0];
-            double x = Double.parseDouble(data[1].replace(",", ".")); 
-            double y = Double.parseDouble(data[2].replace(",", ".")); 
+            double x = Double.parseDouble(data[1].replace(",", "."));
+            double y = Double.parseDouble(data[2].replace(",", "."));
 
             villes.add(new Ville(nom, x, y));
         }
@@ -93,7 +95,7 @@ class TSPVoisinProche {
 
     public static void main(String[] args) {
         try {
-            List<Ville> villes = lireFichierCSV("../cities.csv");  
+            List<Ville> villes = lireFichierCSV("../cities.csv");
             TSPVoisinProche tsp = new TSPVoisinProche(villes);
             tsp.solve();
         } catch (IOException e) {
