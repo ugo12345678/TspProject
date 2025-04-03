@@ -79,6 +79,7 @@ func lireVilles(nomFichier string) ([]Ville, error) {
 		if err != nil {
 			break
 		}
+		strings.ReplaceAll(ligne, ",", ".")
 		champs := strings.Split(strings.TrimSpace(ligne), "|")
 		if len(champs) != 3 {
 			continue
@@ -95,7 +96,7 @@ func lireVilles(nomFichier string) ([]Ville, error) {
 }
 
 func main() {
-	villes, err := lireVilles("../../villes.csv")
+	villes, err := lireVilles("../../cities.csv")
 	if err != nil {
 		log.Fatalf("Erreur de lecture du fichier : %v", err)
 	}
