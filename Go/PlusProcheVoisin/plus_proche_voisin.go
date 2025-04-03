@@ -2,13 +2,11 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"math"
 	"os"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // Ville représente une ville avec ses coordonnées x et y
@@ -19,6 +17,7 @@ type Ville struct {
 }
 
 // distance calcule la distance euclidienne entre deux villes
+
 func distance(v1, v2 Ville) float64 {
 	return math.Sqrt(math.Pow(v1.x-v2.x, 2) + math.Pow(v1.y-v2.y, 2))
 }
@@ -111,10 +110,7 @@ func lireVilles(nomFichier string) ([]Ville, error) {
 
 func main() {
 	// Exemple de villes avec leurs coordonnées
-	start := time.Now()
 	villes, err := lireVilles("../../cities.csv")
-	duration := time.Since(start)
-	fmt.Println("Temps d'exécution :", duration)
 	if err != nil {
 		log.Fatalf("Erreur de lecture du fichier : %v", err)
 	}
