@@ -1,84 +1,77 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>TSP - Algo NNA Visuel</title>
+  <meta charset="UTF-8" />
+  <title>Visualisation TSP - NNA</title>
   <style>
     canvas {
-      border: 1px solid #444;
-      background-color: #f0f0f0;
+      border: 1px solid #000;
       display: block;
+      margin: 20px auto;
+      background-color: #f4f4f4;
+    }
+
+    #controls {
+      text-align: center;
       margin-bottom: 10px;
     }
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      max-width: 650px;
-      margin: auto;
+
+    #speedValue {
+      font-weight: bold;
     }
-    #info {
-      margin-top: 10px;
-    }
+
     button {
-      padding: 8px 14px;
-      background-color: #007b4f;
-      color: white;
-      border: none;
-      border-radius: 4px;
+      margin-top: 10px;
+      padding: 6px 12px;
+      font-size: 14px;
       cursor: pointer;
-    }
-    button:hover {
-      background-color: #005f3a;
     }
   </style>
 </head>
 <body>
-  <h2>Problème du Voyageur - NNA 🧠</h2>
-  <canvas id="canvas" width="600" height="600"></canvas>
-  <div id="info">
-    <p><strong>Distance totale :</strong> <span id="distance">0</span></p>
-    <p><strong>Nombre de villes :</strong> <span id="cityCount">0</span></p>
-    <button onclick="start()">Relancer</button>
+  <div id="controls">
+    <label for="speed">Vitesse :</label>
+    <input type="range" id="speed" min="50" max="1000" step="50" value="300" onchange="updateSpeed(this.value)">
+    <span id="speedValue">300 ms</span>
+    <br />
+    <button onclick="restartDemo()">Relancer la démo</button>
   </div>
+  <canvas id="canvas" width="550" height="550"></canvas>
 
   <script>
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const cityCount = 150; // tu peux augmenter ou réduire
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    const cityIcon = new Image();
+    cityIcon.src = "https://cdn-icons-png.flaticon.com/512/69/69407.png"; // Icône maison
+
+    const numCities = 50;
     let cities = [];
     let visited = [];
-    let path = [];
-    let totalDistance = 0;
-    let currentIndex = 0;
-    let animationFrame;
+    let tour = [];
+    let delay = 300;
+    let currentCityIndex = 0;
+    let animationTimeout;
 
-    function generateCities(count) {
-      const result = [];
-      for (let i = 0; i < count; i++) {
-        result.push({
-          name: "City_" + i,
-          x: Math.random() * (canvas.width - 40) + 20,
-          y: Math.random() * (canvas.height - 40) + 20
-        });
-      }
-      return result;
+    function updateSpeed(val) {
+      delay = parseInt(val);
+      document.getElementById("speedValue").textContent = `${val} ms`;
     }
 
-    function drawCities() {
-      for (let i = 0; i < cities.length; i++) {
-        const city = cities[i];
-        ctx.font = "16px Arial";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText("🏠", city.x, city.y);
-
-        // Si c'est la première ville, écrire "Départ"
-        if (i === 0) {
-          ctx.font = "12px Arial";
-          ctx.fillStyle = "black";
-          ctx.fillText("Départ", city.x, city.y - 20);
-        }
+    function generateCities() {
+      cities = [];
+      visited = new Array(numCities).fill(false);
+      tour = [];
+      for (let i = 0; i < numCities; i++) {
+        cities.push({
+          x: Math.random() * 520 + 15,
+          y: Math.random() * 520 + 15,
+          name: "City_" + i,
+        });
       }
+      currentCityIndex = 0;
+      tour.push(currentCityIndex);
+      visited[currentCityIndex] = true;
     }
 
     function distance(a, b) {
@@ -87,41 +80,61 @@
       return Math.sqrt(dx * dx + dy * dy);
     }
 
-    function drawPath() {
+    function drawCities() {
+      cities.forEach((city, index) => {
+        ctx.drawImage(cityIcon, city.x - 8, city.y - 8, 16, 16);
+        if (index === tour[0]) {
+          ctx.fillStyle = "black";
+          ctx.font = "12px sans-serif";
+          ctx.fillText("Départ", city.x + 10, city.y);
+        }
+      });
+    }
+
+    function drawLines(path, color = "green", lineWidth = 2) {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = lineWidth;
       ctx.beginPath();
-      ctx.moveTo(path[0].x, path[0].y);
-      for (let i = 1; i < path.length; i++) {
-        ctx.lineTo(path[i].x, path[i].y);
+      for (let i = 0; i < path.length - 1; i++) {
+        const a = cities[path[i]];
+        const b = cities[path[i + 1]];
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
       }
-      ctx.strokeStyle = 'green';
-      ctx.lineWidth = 2;
       ctx.stroke();
     }
 
-    function updateInfo() {
-      document.getElementById('distance').textContent = totalDistance.toFixed(2);
-      document.getElementById('cityCount').textContent = cities.length;
-    }
-
-    function clearCanvas() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    function drawCandidate(fromIndex, toIndex, used) {
+      const from = cities[fromIndex];
+      const to = cities[toIndex];
+      ctx.strokeStyle = used ? "green" : "red";
+      ctx.lineWidth = used ? 2 : 1;
+      ctx.beginPath();
+      ctx.moveTo(from.x, from.y);
+      ctx.lineTo(to.x, to.y);
+      ctx.stroke();
     }
 
     function animateStep() {
-      if (visited.length === cities.length) {
-        path.push(path[0]);
-        totalDistance += distance(path[path.length - 2], path[path.length - 1]);
-        drawAll();
-        updateInfo();
-        cancelAnimationFrame(animationFrame);
+      if (tour.length >= numCities) {
+        tour.push(tour[0]); // retour au point de départ
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawCities();
+        drawLines(tour);
         return;
       }
 
+      const currentIndex = tour[tour.length - 1];
       let nearestIndex = -1;
       let minDist = Infinity;
-      for (let i = 0; i < cities.length; i++) {
-        if (!visited.includes(i)) {
-          let dist = distance(cities[currentIndex], cities[i]);
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawCities();
+
+      for (let i = 0; i < numCities; i++) {
+        if (!visited[i]) {
+          const dist = distance(cities[currentIndex], cities[i]);
+          drawCandidate(currentIndex, i, false); // Chemin candidat rouge
           if (dist < minDist) {
             minDist = dist;
             nearestIndex = i;
@@ -129,38 +142,38 @@
         }
       }
 
-      if (nearestIndex !== -1) {
-        visited.push(nearestIndex);
-        totalDistance += minDist;
-        currentIndex = nearestIndex;
-        path.push(cities[currentIndex]);
+      drawCandidate(currentIndex, nearestIndex, true); // Chemin choisi vert
+      visited[nearestIndex] = true;
+      tour.push(nearestIndex);
+      drawLines(tour);
+
+      animationTimeout = setTimeout(animateStep, delay);
+    }
+
+    function restartDemo() {
+      clearTimeout(animationTimeout);
+      generateCities();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      cityIcon.onload = () => {
+        drawCities();
+        animateStep();
+      };
+      if (cityIcon.complete) {
+        drawCities();
+        animateStep();
       }
-
-      drawAll();
-      updateInfo();
-      animationFrame = requestAnimationFrame(animateStep);
     }
 
-    function drawAll() {
-      clearCanvas();
-      drawPath();
+    // Lancement initial
+    generateCities();
+    cityIcon.onload = () => {
       drawCities();
-    }
-
-    function start() {
-      cancelAnimationFrame(animationFrame);
-      cities = generateCities(cityCount);
-      visited = [];
-      path = [];
-      totalDistance = 0;
-      currentIndex = 0;
-      visited.push(0);
-      path.push(cities[0]);
-      drawAll();
+      animateStep();
+    };
+    if (cityIcon.complete) {
+      drawCities();
       animateStep();
     }
-
-    start(); // Lancer au chargement
   </script>
 </body>
 </html>
