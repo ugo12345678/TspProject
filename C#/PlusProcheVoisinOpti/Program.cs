@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Drawing;
 using System.IO;
-using BenchmarkDotNet.Running;
-
+using System.Linq;
+using System.Threading;
+using System.Windows.Forms;
 
 public class City
 {
@@ -19,39 +20,119 @@ public class City
     }
 }
 
-class Program
+public class TSPForm : Form
 {
-    public static void Main()
-    {
-        int cityCount = 30_000; // Nombre de villes
-        string filePath = "cities.csv"; // Fichier de stockage
+    private List<City> cities;
+    private List<City> tour = new List<City>();
+    private Thread algoThread;
+    private object drawLock = new object();
+    private int step = 0;
 
-        List<City> cities;
+    public TSPForm()
+    {
+        this.Text = "TSP - Nearest Neighbor Visualization";
+        this.Width = 800;
+        this.Height = 800;
+        this.DoubleBuffered = true;
+
+        string filePath = "cities.csv";
         if (File.Exists(filePath))
         {
-            Console.WriteLine("Chargement des villes depuis le fichier...");
             cities = LoadCitiesFromFile(filePath);
         }
         else
         {
-            Console.WriteLine("Génération des villes...");
-            cities = GenerateRandomCities(cityCount);
+            cities = GenerateRandomCities(200); // Pas 30 000, sinon lag...
             SaveCitiesToFile(cities, filePath);
         }
 
-        Stopwatch stopwatch = Stopwatch.StartNew(); // Démarrer le chrono
-        List<City> tour = NearestNeighbor(cities);
-        stopwatch.Stop(); // Arrêter le chrono
-
-        double totalDistance = CalculateTourDistance(tour);
-
-        Console.WriteLine($"Distance totale du trajet : {totalDistance:F2} km");
-        Console.WriteLine($"Temps d'exécution : {stopwatch.ElapsedMilliseconds} ms");
-        Console.WriteLine($"Launch Benchmark");
-        BenchmarkRunner.Run<CityBenchmark>();
+        algoThread = new Thread(() => RunAlgorithm());
+        algoThread.Start();
     }
 
-    public static List<City> GenerateRandomCities(int count)
+    protected override void OnPaint(PaintEventArgs e)
+    {
+        base.OnPaint(e);
+        if (cities == null || cities.Count == 0) return;
+
+        Graphics g = e.Graphics;
+        lock (drawLock)
+        {
+            foreach (var city in cities)
+            {
+                g.FillEllipse(Brushes.Blue, TransformX(city.X) - 3, TransformY(city.Y) - 3, 6, 6);
+            }
+
+            for (int i = 0; i < step - 1 && i < tour.Count - 1; i++)
+            {
+                var a = tour[i];
+                var b = tour[i + 1];
+                g.DrawLine(Pens.Red, TransformX(a.X), TransformY(a.Y), TransformX(b.X), TransformY(b.Y));
+            }
+        }
+    }
+
+    private int TransformX(double x) => (int)(x * 7) + 50;
+    private int TransformY(double y) => (int)(y * 7) + 50;
+
+    private void RunAlgorithm()
+    {
+        bool[] visited = new bool[cities.Count];
+        int current = 0;
+
+        lock (drawLock)
+        {
+            tour.Add(cities[current]);
+            visited[current] = true;
+        }
+
+        for (int i = 1; i < cities.Count; i++)
+        {
+            int nearest = -1;
+            double minDist = double.MaxValue;
+
+            for (int j = 0; j < cities.Count; j++)
+            {
+                if (!visited[j])
+                {
+                    double dist = Distance(cities[current], cities[j]);
+                    if (dist < minDist)
+                    {
+                        minDist = dist;
+                        nearest = j;
+                    }
+                }
+            }
+
+            current = nearest;
+            lock (drawLock)
+            {
+                tour.Add(cities[current]);
+                visited[current] = true;
+                step++;
+            }
+
+            this.Invoke(new Action(() => this.Invalidate()));
+            Thread.Sleep(10); // Pour l’effet visuel
+        }
+
+        lock (drawLock)
+        {
+            tour.Add(tour[0]); // Retour au départ
+            step++;
+        }
+
+        this.Invoke(new Action(() => this.Invalidate()));
+    }
+
+    private double Distance(City a, City b)
+    {
+        double dx = a.X - b.X;
+        double dy = a.Y - b.Y;
+        return Math.Sqrt(dx * dx + dy * dy);
+    }
+
+    private List<City> GenerateRandomCities(int count)
     {
         Random rand = new Random();
         List<City> cities = new List<City>();
@@ -63,7 +144,7 @@ class Program
         return cities;
     }
 
-    public static void SaveCitiesToFile(List<City> cities, string filePath)
+    private void SaveCitiesToFile(List<City> cities, string filePath)
     {
         using (StreamWriter writer = new StreamWriter(filePath))
         {
@@ -74,7 +155,7 @@ class Program
         }
     }
 
-    public static List<City> LoadCitiesFromFile(string filePath)
+    private List<City> LoadCitiesFromFile(string filePath)
     {
         List<City> cities = new List<City>();
         string[] lines = File.ReadAllLines(filePath);
@@ -86,61 +167,14 @@ class Program
         }
         return cities;
     }
+}
 
-    public static List<City> NearestNeighbor(List<City> cities)
+static class Program
+{
+    [STAThread]
+    static void Main()
     {
-        int count = cities.Count;
-        if (count == 0) return new List<City>();
-
-        List<City> tour = new List<City>(count + 1);
-        bool[] visited = new bool[count];
-
-        int currentCityIndex = 0;
-        tour.Add(cities[currentCityIndex]);
-        visited[currentCityIndex] = true;
-
-        for (int i = 1; i < count; i++)
-        {
-            int nearestCityIndex = -1;
-            double minDistance = double.MaxValue;
-
-            for (int j = 0; j < count; j++)
-            {
-                if (!visited[j])
-                {
-                    double dist = Distance(cities[currentCityIndex], cities[j]);
-                    if (dist < minDistance)
-                    {
-                        minDistance = dist;
-                        nearestCityIndex = j;
-                    }
-                }
-            }
-
-            currentCityIndex = nearestCityIndex;
-            visited[currentCityIndex] = true;
-            tour.Add(cities[currentCityIndex]);
-        }
-
-        // Retour à la ville de départ
-        tour.Add(tour[0]);
-        return tour;
-    }
-
-    static double Distance(City a, City b)
-    {
-        double dx = a.X - b.X;
-        double dy = a.Y - b.Y;
-        return Math.Sqrt(dx * dx + dy * dy);
-    }
-
-    static double CalculateTourDistance(List<City> tour)
-    {
-        double total = 0;
-        for (int i = 0; i < tour.Count - 1; i++)
-        {
-            total += Distance(tour[i], tour[i + 1]);
-        }
-        return total;
+        Application.EnableVisualStyles();
+        Application.Run(new TSPForm());
     }
 }

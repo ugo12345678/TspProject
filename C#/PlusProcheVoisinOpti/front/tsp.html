@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>TSP - Algo NNA Visuel</title>
+  <style>
+    canvas {
+      border: 1px solid #444;
+      background-color: #f0f0f0;
+      display: block;
+      margin-bottom: 10px;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 650px;
+      margin: auto;
+    }
+    #info {
+      margin-top: 10px;
+    }
+    button {
+      padding: 8px 14px;
+      background-color: #007b4f;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005f3a;
+    }
+  </style>
+</head>
+<body>
+  <h2>Problème du Voyageur - NNA 🧠</h2>
+  <canvas id="canvas" width="600" height="600"></canvas>
+  <div id="info">
+    <p><strong>Distance totale :</strong> <span id="distance">0</span></p>
+    <p><strong>Nombre de villes :</strong> <span id="cityCount">0</span></p>
+    <button onclick="start()">Relancer</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const cityCount = 150; // tu peux augmenter ou réduire
+    let cities = [];
+    let visited = [];
+    let path = [];
+    let totalDistance = 0;
+    let currentIndex = 0;
+    let animationFrame;
+
+    function generateCities(count) {
+      const result = [];
+      for (let i = 0; i < count; i++) {
+        result.push({
+          name: "City_" + i,
+          x: Math.random() * (canvas.width - 40) + 20,
+          y: Math.random() * (canvas.height - 40) + 20
+        });
+      }
+      return result;
+    }
+
+    function drawCities() {
+      for (let i = 0; i < cities.length; i++) {
+        const city = cities[i];
+        ctx.font = "16px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("🏠", city.x, city.y);
+
+        // Si c'est la première ville, écrire "Départ"
+        if (i === 0) {
+          ctx.font = "12px Arial";
+          ctx.fillStyle = "black";
+          ctx.fillText("Départ", city.x, city.y - 20);
+        }
+      }
+    }
+
+    function distance(a, b) {
+      const dx = a.x - b.x;
+      const dy = a.y - b.y;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function drawPath() {
+      ctx.beginPath();
+      ctx.moveTo(path[0].x, path[0].y);
+      for (let i = 1; i < path.length; i++) {
+        ctx.lineTo(path[i].x, path[i].y);
+      }
+      ctx.strokeStyle = 'green';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    function updateInfo() {
+      document.getElementById('distance').textContent = totalDistance.toFixed(2);
+      document.getElementById('cityCount').textContent = cities.length;
+    }
+
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function animateStep() {
+      if (visited.length === cities.length) {
+        path.push(path[0]);
+        totalDistance += distance(path[path.length - 2], path[path.length - 1]);
+        drawAll();
+        updateInfo();
+        cancelAnimationFrame(animationFrame);
+        return;
+      }
+
+      let nearestIndex = -1;
+      let minDist = Infinity;
+      for (let i = 0; i < cities.length; i++) {
+        if (!visited.includes(i)) {
+          let dist = distance(cities[currentIndex], cities[i]);
+          if (dist < minDist) {
+            minDist = dist;
+            nearestIndex = i;
+          }
+        }
+      }
+
+      if (nearestIndex !== -1) {
+        visited.push(nearestIndex);
+        totalDistance += minDist;
+        currentIndex = nearestIndex;
+        path.push(cities[currentIndex]);
+      }
+
+      drawAll();
+      updateInfo();
+      animationFrame = requestAnimationFrame(animateStep);
+    }
+
+    function drawAll() {
+      clearCanvas();
+      drawPath();
+      drawCities();
+    }
+
+    function start() {
+      cancelAnimationFrame(animationFrame);
+      cities = generateCities(cityCount);
+      visited = [];
+      path = [];
+      totalDistance = 0;
+      currentIndex = 0;
+      visited.push(0);
+      path.push(cities[0]);
+      drawAll();
+      animateStep();
+    }
+
+    start(); // Lancer au chargement
+  </script>
+</body>
+</html>
