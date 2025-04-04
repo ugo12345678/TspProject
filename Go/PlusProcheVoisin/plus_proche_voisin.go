@@ -110,7 +110,7 @@ func lireVilles(nomFichier string) ([]Ville, error) {
 
 func main() {
 	// Exemple de villes avec leurs coordonnées
-	villes, err := lireVilles("../../cities.csv")
+	villes, err := lireVilles("cities.csv")
 	if err != nil {
 		log.Fatalf("Erreur de lecture du fichier : %v", err)
 	}

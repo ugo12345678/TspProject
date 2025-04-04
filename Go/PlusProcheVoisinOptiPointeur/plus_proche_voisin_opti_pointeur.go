@@ -16,25 +16,25 @@ type Ville struct {
 }
 
 // distance calcule la distance euclidienne entre deux villes
-func distance(v1, v2 Ville) float64 {
+func distance(v1, v2 *Ville) float64 {
 	dx, dy := v1.x-v2.x, v1.y-v2.y
 	return math.Sqrt(dx*dx + dy*dy)
 }
 
 // plusProcheVoisin résout le problème du voyageur de commerce
-func plusProcheVoisin(villes []Ville) ([]Ville, float64) {
+func plusProcheVoisin(villes []Ville) ([]*Ville, float64) {
 	n := len(villes)
 	if n == 0 {
 		return nil, 0
 	}
 
 	visitees := make([]bool, n)
-	tour := make([]Ville, 0, n)
+	tour := make([]*Ville, 0, n)
 	distanceTotale := 0.0
 
 	// Commencer par la première ville
 	villeActuelle := 0
-	tour = append(tour, villes[villeActuelle])
+	tour = append(tour, &villes[villeActuelle])
 	visitees[villeActuelle] = true
 
 	for i := 1; i < n; i++ {
@@ -42,7 +42,7 @@ func plusProcheVoisin(villes []Ville) ([]Ville, float64) {
 
 		for j := 0; j < n; j++ {
 			if !visitees[j] {
-				dist := distance(villes[villeActuelle], villes[j])
+				dist := distance(&villes[villeActuelle], &villes[j])
 				if dist < distanceMin {
 					distanceMin, villeSuivante = dist, j
 				}
@@ -51,12 +51,12 @@ func plusProcheVoisin(villes []Ville) ([]Ville, float64) {
 
 		villeActuelle = villeSuivante
 		visitees[villeActuelle] = true
-		tour = append(tour, villes[villeActuelle])
+		tour = append(tour, &villes[villeActuelle])
 		distanceTotale += distanceMin
 	}
 
-	distanceTotale += distance(villes[villeActuelle], villes[0])
-	tour = append(tour, villes[0])
+	distanceTotale += distance(&villes[villeActuelle], &villes[0])
+	tour = append(tour, &villes[0])
 
 	return tour, distanceTotale
 }

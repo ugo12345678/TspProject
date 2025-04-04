@@ -64,13 +64,7 @@ class TSPVoisinProche {
         long endTime = System.nanoTime();
         double executionTime = (endTime - startTime) / 1e6; // en ms
 
-        // System.out.printf("Distance totale : %.6f\n", distanceTotale);
         System.out.printf("Temps d'exécution : %.4f ms\n", executionTime);
-        // System.out.print("Chemin suivi : ");
-        // for (Ville v : chemin) {
-        // System.out.print(v.nom + " -> ");
-        // }
-        // System.out.println();
     }
 
     public static List<Ville> lireFichierCSV(String nomFichier) throws IOException {
