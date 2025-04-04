@@ -7,4 +7,14 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <BenchmarkDotNetArtifactsPath>Benchmarks</BenchmarkDotNetArtifactsPath>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
+  </ItemGroup>
+  
+
 </Project>

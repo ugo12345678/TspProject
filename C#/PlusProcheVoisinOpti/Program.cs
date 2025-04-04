@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using BenchmarkDotNet.Running;
 
-class City
+
+public class City
 {
     public string Name { get; set; }
     public double X { get; set; }
@@ -19,7 +21,7 @@ class City
 
 class Program
 {
-    static void Main()
+    public static void Main()
     {
         int cityCount = 30_000; // Nombre de villes
         string filePath = "cities.csv"; // Fichier de stockage
@@ -37,8 +39,6 @@ class Program
             SaveCitiesToFile(cities, filePath);
         }
 
-        Console.WriteLine($"Nombre de villes : {cities.Count}");
-
         Stopwatch stopwatch = Stopwatch.StartNew(); // Démarrer le chrono
         List<City> tour = NearestNeighbor(cities);
         stopwatch.Stop(); // Arrêter le chrono
@@ -47,9 +47,11 @@ class Program
 
         Console.WriteLine($"Distance totale du trajet : {totalDistance:F2} km");
         Console.WriteLine($"Temps d'exécution : {stopwatch.ElapsedMilliseconds} ms");
+        Console.WriteLine($"Launch Benchmark");
+        BenchmarkRunner.Run<CityBenchmark>();
     }
 
-    static List<City> GenerateRandomCities(int count)
+    public static List<City> GenerateRandomCities(int count)
     {
         Random rand = new Random();
         List<City> cities = new List<City>();
@@ -61,7 +63,7 @@ class Program
         return cities;
     }
 
-    static void SaveCitiesToFile(List<City> cities, string filePath)
+    public static void SaveCitiesToFile(List<City> cities, string filePath)
     {
         using (StreamWriter writer = new StreamWriter(filePath))
         {
@@ -72,7 +74,7 @@ class Program
         }
     }
 
-    static List<City> LoadCitiesFromFile(string filePath)
+    public static List<City> LoadCitiesFromFile(string filePath)
     {
         List<City> cities = new List<City>();
         string[] lines = File.ReadAllLines(filePath);
@@ -85,7 +87,7 @@ class Program
         return cities;
     }
 
-    static List<City> NearestNeighbor(List<City> cities)
+    public static List<City> NearestNeighbor(List<City> cities)
     {
         int count = cities.Count;
         if (count == 0) return new List<City>();
@@ -118,11 +120,6 @@ class Program
             currentCityIndex = nearestCityIndex;
             visited[currentCityIndex] = true;
             tour.Add(cities[currentCityIndex]);
-
-            if (i % 1000 == 0 || i == count - 1)
-            {
-                Console.WriteLine($"Villes restantes : {count - i}");
-            }
         }
 
         // Retour à la ville de départ
