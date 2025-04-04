@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Visualisation TSP - NNA</title>
+  <style>
+    canvas {
+      border: 1px solid #000;
+      display: block;
+      margin: 20px auto;
+      background-color: #f4f4f4;
+    }
+
+    #controls {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    #speedValue {
+      font-weight: bold;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 6px 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <label for="speed">Vitesse :</label>
+    <input type="range" id="speed" min="50" max="1000" step="50" value="300" onchange="updateSpeed(this.value)">
+    <span id="speedValue">300 ms</span>
+    <br />
+    <button onclick="restartDemo()">Relancer la démo</button>
+  </div>
+  <canvas id="canvas" width="550" height="550"></canvas>
+
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    const cityIcon = new Image();
+    cityIcon.src = "https://cdn-icons-png.flaticon.com/512/69/69407.png"; // Icône maison
+
+    const numCities = 50;
+    let cities = [];
+    let visited = [];
+    let tour = [];
+    let delay = 300;
+    let currentCityIndex = 0;
+    let animationTimeout;
+
+    function updateSpeed(val) {
+      delay = parseInt(val);
+      document.getElementById("speedValue").textContent = `${val} ms`;
+    }
+
+    function generateCities() {
+      cities = [];
+      visited = new Array(numCities).fill(false);
+      tour = [];
+      for (let i = 0; i < numCities; i++) {
+        cities.push({
+          x: Math.random() * 520 + 15,
+          y: Math.random() * 520 + 15,
+          name: "City_" + i,
+        });
+      }
+      currentCityIndex = 0;
+      tour.push(currentCityIndex);
+      visited[currentCityIndex] = true;
+    }
+
+    function distance(a, b) {
+      const dx = a.x - b.x;
+      const dy = a.y - b.y;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function drawCities() {
+      cities.forEach((city, index) => {
+        ctx.drawImage(cityIcon, city.x - 8, city.y - 8, 16, 16);
+        if (index === tour[0]) {
+          ctx.fillStyle = "black";
+          ctx.font = "12px sans-serif";
+          ctx.fillText("Départ", city.x + 10, city.y);
+        }
+      });
+    }
+
+    function drawLines(path, color = "green", lineWidth = 2) {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = lineWidth;
+      ctx.beginPath();
+      for (let i = 0; i < path.length - 1; i++) {
+        const a = cities[path[i]];
+        const b = cities[path[i + 1]];
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+      }
+      ctx.stroke();
+    }
+
+    function drawCandidate(fromIndex, toIndex, used) {
+      const from = cities[fromIndex];
+      const to = cities[toIndex];
+      ctx.strokeStyle = used ? "green" : "red";
+      ctx.lineWidth = used ? 2 : 1;
+      ctx.beginPath();
+      ctx.moveTo(from.x, from.y);
+      ctx.lineTo(to.x, to.y);
+      ctx.stroke();
+    }
+
+    function animateStep() {
+      if (tour.length >= numCities) {
+        tour.push(tour[0]); // retour au point de départ
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawCities();
+        drawLines(tour);
+        return;
+      }
+
+      const currentIndex = tour[tour.length - 1];
+      let nearestIndex = -1;
+      let minDist = Infinity;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawCities();
+
+      for (let i = 0; i < numCities; i++) {
+        if (!visited[i]) {
+          const dist = distance(cities[currentIndex], cities[i]);
+          drawCandidate(currentIndex, i, false); // Chemin candidat rouge
+          if (dist < minDist) {
+            minDist = dist;
+            nearestIndex = i;
+          }
+        }
+      }
+
+      drawCandidate(currentIndex, nearestIndex, true); // Chemin choisi vert
+      visited[nearestIndex] = true;
+      tour.push(nearestIndex);
+      drawLines(tour);
+
+      animationTimeout = setTimeout(animateStep, delay);
+    }
+
+    function restartDemo() {
+      clearTimeout(animationTimeout);
+      generateCities();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      cityIcon.onload = () => {
+        drawCities();
+        animateStep();
+      };
+      if (cityIcon.complete) {
+        drawCities();
+        animateStep();
+      }
+    }
+
+    // Lancement initial
+    generateCities();
+    cityIcon.onload = () => {
+      drawCities();
+      animateStep();
+    };
+    if (cityIcon.complete) {
+      drawCities();
+      animateStep();
+    }
+  </script>
+</body>
+</html>
